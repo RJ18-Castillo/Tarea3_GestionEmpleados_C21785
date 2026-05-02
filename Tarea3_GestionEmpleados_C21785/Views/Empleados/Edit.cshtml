@@ -1,5 +1,56 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Tarea3_GestionEmpleados_C21785.Models.Empleado
+
 @{
+    ViewData["Title"] = "Editar Empleado";
+}
+
+<h2>Editar Empleado</h2>
+
+<form asp-action="Edit" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div>
+        <label>Nombre</label>
+        <input asp-for="Nombre" />
+        <span asp-validation-for="Nombre" style="color:red;"></span>
+    </div>
+
+    <div>
+        <label>Apellidos</label>
+        <input asp-for="Apellidos" />
+        <span asp-validation-for="Apellidos" style="color:red;"></span>
+    </div>
+
+    <div>
+        <label>Departamento</label>
+        <input asp-for="Departamento" />
+        <span asp-validation-for="Departamento" style="color:red;"></span>
+    </div>
+
+    <div>
+        <label>Salario</label>
+        <input asp-for="Salario" />
+        <span asp-validation-for="Salario" style="color:red;"></span>
+    </div>
+
+    <div>
+        <label>Fecha Ingreso</label>
+        <input asp-for="FechaIngreso" type="date" />
+    </div>
+
+    <div>
+        <label>Activo</label>
+        <input asp-for="Activo" type="checkbox" />
+    </div>
+
+    <br />
+
+    <button type="submit">Actualizar</button>
+    <a asp-action="Index">Volver</a>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
