@@ -7,10 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// 🔥 AGREGAR ESTO
+// 🔥 CONEXIÓN A BASE DE DATOS
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// 🔥 INYECCIÓN DEL REPOSITORIO
 builder.Services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
 
 var app = builder.Build();
@@ -29,9 +30,10 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// 🔥 RUTA PRINCIPAL CAMBIADA A EMPLEADOS
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Empleados}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.Run();
