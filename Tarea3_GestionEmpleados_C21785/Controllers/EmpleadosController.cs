@@ -1,83 +1,88 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Tarea3_GestionEmpleados_C21785.Models;
+using Tarea3_GestionEmpleados_C21785.Repositories;
 
 namespace Tarea3_GestionEmpleados_C21785.Controllers
 {
     public class EmpleadosController : Controller
     {
-        // GET: EmpleadosController
-        public ActionResult Index()
+        private readonly IEmpleadoRepository _repo;
+        private const int TAMANO_PAGINA = 5;
+
+        public EmpleadosController(IEmpleadoRepository repo)
+        {
+            _repo = repo;
+        }
+
+        // 🔍 LISTADO + BÚSQUEDA + PAGINACIÓN
+        public IActionResult Index(string? busqueda, int pagina = 1)
+        {
+            var empleados = _repo.ObtenerPaginado(pagina, TAMANO_PAGINA, busqueda);
+            var totalRegistros = _repo.ContarTotal(busqueda);
+
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / TAMANO_PAGINA);
+
+            ViewBag.Busqueda = busqueda;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalRegistros = totalRegistros;
+
+            return View(empleados);
+        }
+
+        // 🆕 CREATE (GET)
+        public IActionResult Create()
         {
             return View();
         }
 
-        // GET: EmpleadosController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: EmpleadosController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: EmpleadosController/Create
+        // 🆕 CREATE (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public IActionResult Create(Empleado empleado)
         {
-            try
+            if (ModelState.IsValid)
             {
+                empleado.Activo = true;
+                _repo.Agregar(empleado);
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(empleado);
         }
 
-        // GET: EmpleadosController/Edit/5
-        public ActionResult Edit(int id)
+        // ✏️ EDIT (GET)
+        public IActionResult Edit(int id)
         {
-            return View();
+            var empleado = _repo.ObtenerPorId(id);
+
+            if (empleado == null)
+                return NotFound();
+
+            return View(empleado);
         }
 
-        // POST: EmpleadosController/Edit/5
+        // ✏️ EDIT (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public IActionResult Edit(Empleado empleado)
         {
-            try
+            if (ModelState.IsValid)
             {
+                _repo.Actualizar(empleado);
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(empleado);
         }
 
-        // GET: EmpleadosController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: EmpleadosController/Delete/5
+        // 🔄 TOGGLE ACTIVO (BAJA LÓGICA)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public IActionResult ToggleActivo(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            _repo.Eliminar(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }
