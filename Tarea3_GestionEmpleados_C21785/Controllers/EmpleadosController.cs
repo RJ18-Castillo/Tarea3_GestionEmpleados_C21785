@@ -14,75 +14,62 @@ namespace Tarea3_GestionEmpleados_C21785.Controllers
             _repo = repo;
         }
 
-        // 🔍 LISTADO + BÚSQUEDA + PAGINACIÓN
         public IActionResult Index(string? busqueda, int pagina = 1)
         {
             var empleados = _repo.ObtenerPaginado(pagina, TAMANO_PAGINA, busqueda);
-            var totalRegistros = _repo.ContarTotal(busqueda);
-
-            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / TAMANO_PAGINA);
+            var total = _repo.ContarTotal(busqueda);
 
             ViewBag.Busqueda = busqueda;
             ViewBag.PaginaActual = pagina;
-            ViewBag.TotalPaginas = totalPaginas;
-            ViewBag.TotalRegistros = totalRegistros;
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / TAMANO_PAGINA);
+            ViewBag.TotalRegistros = total;
 
             return View(empleados);
         }
 
-        // 🆕 CREATE (GET)
         public IActionResult Create()
         {
             return View();
         }
 
-        // 🆕 CREATE (POST)
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(Empleado empleado)
         {
             if (ModelState.IsValid)
             {
                 empleado.Activo = true;
                 _repo.Agregar(empleado);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
 
             return View(empleado);
         }
 
-        // ✏️ EDIT (GET)
         public IActionResult Edit(int id)
         {
-            var empleado = _repo.ObtenerPorId(id);
+            var emp = _repo.ObtenerPorId(id);
+            if (emp == null) return NotFound();
 
-            if (empleado == null)
-                return NotFound();
-
-            return View(empleado);
+            return View(emp);
         }
 
-        // ✏️ EDIT (POST)
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Edit(Empleado empleado)
         {
             if (ModelState.IsValid)
             {
                 _repo.Actualizar(empleado);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
 
             return View(empleado);
         }
 
-        // 🔄 TOGGLE ACTIVO (BAJA LÓGICA)
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult ToggleActivo(int id)
         {
             _repo.Eliminar(id);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
     }
 }
